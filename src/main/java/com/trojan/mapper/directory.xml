@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.trojan.mapper.DirectoryMapper">
+
+	<resultMap type="Directory" id="directoryMap">
+		<id column="nId" property="nId" />
+		<result column="nName" property="nName" />
+		<result column="nURL" property="nURL" />
+		<result column="nLURL" property="nLURL" />
+		<result column="cId" property="cId" />
+		<collection property="category" ofType="Category">
+			<id column="cId" property="cId" />
+			<result column="cName" property="cName" />
+		</collection>
+	</resultMap>
+
+	<!-- 通过id查询信息 -->
+	<select id="selectById" resultMap="directoryMap" parameterType="java.lang.Integer">
+		select
+		nId,nName,nURL,nLURL,CATE.cId,CATE.cName,
+		author,lastUpdateTime,introduction,coverPic
+		from
+		directory DIR,category
+		CATE
+		where
+		nId=#{id}
+	</select>
+
+	<!-- 查询所有无类别信息 -->
+	<select id="selectAll" resultType="java.util.HashMap">
+		select
+		d.nId,d.nName,d.nURL,d.nLURL,d.author,
+		d.lastUpdateTime,d.introduction,d.coverPic
+		from
+		directory d 
+	</select>
+	<!-- 查询所有无类别信息 -->
+	<select id="selectAllByPage" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select
+		d.nId,d.nName,d.nURL,d.nLURL,d.author,
+		d.lastUpdateTime,d.introduction,d.coverPic
+		from
+		directory d limit
+		#{currentIndex}, #{pageSize}
+	</select>
+
+	<!-- 查询所有 有类别信息 -->
+	<select id="selectAllWithCate" resultType="java.util.HashMap">
+		select
+		d.nId,d.nName,d.nURL,d.nLURL,c.cId,c.cName,
+		d.author,d.lastUpdateTime,d.introduction,d.coverPic
+		from
+		directory
+		d,category c
+		where
+		d.cId=c.cId
+	</select>
+
+	<!-- 新增 -->
+	<insert id="addNovel" parameterType="Directory">
+		<![CDATA[
+	    	insert into 
+	    		directory
+		    	(
+		    	nName,nURL,nLURL,cId,lastUpdateTime
+		    ]]>
+		<if test="author != null">,author</if>
+		<if test="introduction != null">,introduction</if>
+		<if test="coverPic != null">,coverPic</if>
+		<![CDATA[
+				)
+			values 
+				(#{nName},#{nURL},#{nLURL},#{cId}
+		]]>
+		<if test="author != null">,#{author}</if>
+		<if test="lastUpdateTime != null">
+			,#{lastUpdateTime}
+		</if>
+		<if test="introduction != null">,#{introduction}</if>
+		<if test="coverPic != null">,#{coverPic}</if>
+		<![CDATA[
+			)
+		]]>
+	</insert>
+
+	<!-- 通过小说名称查询小说信息 -->
+	<select id="selectNovelByName" parameterType="java.lang.String"
+		resultType="Directory">
+		select
+		d.nId,d.nName,d.nURL,d.nLURL,c.cId,c.cName,d.author,d.lastUpdateTime,d.introduction,d.coverPic
+		from
+		directory d
+		left join
+		category c
+		on
+		d.cId=c.cId
+		where
+		d.nName=#{nName}
+	</select>
+
+	<!-- 通过小说id查询小说作者 -->
+	<select id="selectAuthorById" parameterType="java.lang.Integer"
+		resultType="java.lang.String">
+		select
+		d.author
+		from
+		directory d
+		where
+		d.nId=#{id}
+	</select>
+
+	<!-- 根据id更新小说作者 -->
+	<update id="updateAuthorById" parameterType="Directory">
+		update
+		directory d
+		set
+		d.author=#{author}
+		where
+		d.nId=#{nId}
+	</update>
+
+
+	<!-- 根据id更新小说最后更新时间 -->
+	<update id="updateLastTimeById" parameterType="Directory">
+		update
+		directory d
+		set
+		d.lastUpdateTime=#{lastUpdateTime}
+		where
+		d.nId=#{nId}
+	</update>
+
+	<!-- 关键字查询 -->
+	<select id="selectByKeyWord" parameterType="java.lang.String"
+		resultType="java.util.HashMap">
+		select
+		d.nId,d.nName,d.nURL,d.nLURL, c.cId,c.cName,d.author,
+		d.lastUpdateTime, d.introduction,d.coverPic
+		from
+		directory d
+		left join
+		category c
+		on
+		d.cId=c.cId
+		where
+		d.nName like concat('%',#{novelName},'%')
+		or
+		d.author like concat('%',#{novelName},'%')
+	</select>
+
+	<!-- 根据id更新小说信息 -->
+	<update id="updateNovelInfo" parameterType="Directory">
+		update
+		directory d
+		<set>
+			<if test="author  !=null">author=#{author},</if>
+			<if test="lastUpdateTime  !=null">lastUpdateTime=#{lastUpdateTime},</if>
+			<if test="coverPic  !=null">coverPic=#{coverPic},</if>
+			<if test="introduction  !=null">introduction=#{introduction}</if>
+		</set>
+		where
+		d.nId=#{nId}
+	</update>
+
+	<!-- 批量插入小说信息 -->
+	<insert id="batchAddDirectory" parameterType="java.util.List">
+	 	<![CDATA[
+			insert ignore 
+				directory (nName,nURL) 
+		  	values 
+		]]>
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.nName},#{item.nURL})
+		</foreach>
+	</insert>
+
+	<!-- 查询数据条数 -->
+	<select id="getNovelCount" resultType="java.lang.Integer">
+		select count(1) from directory
+	</select>
+</mapper>

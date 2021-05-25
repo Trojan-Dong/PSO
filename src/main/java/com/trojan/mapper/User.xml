@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.trojan.mapper.UserMapper">
+
+	<!-- 返回值类型 -->
+	<resultMap type="User" id="userMap">
+		<id column="id" property="id" />
+		<result column="loginName" property="loginName" />
+		<result column="password" property="password" />
+		<result column="nickName" property="nickName" />
+		<result column="realName" property="realName" />
+		<result column="email" property="email" />
+		<result column="phone" property="phone" />
+		<result column="status" property="status" />
+		<result column="role" property="role" />
+		<result column="registerTime" property="registerTime" />
+		<result column="registeIP" property="registeIP" />
+		<result column="tryTime" property="tryTime" />
+		<result column="balance" property="balance" />
+		<result column="idno" property="idno" />
+	</resultMap>
+
+	<!-- 添加新用户 -->
+	<insert id="addUser" parameterType="User">
+		<![CDATA[insert into user (
+				loginName,password,email
+		]]>
+		<if test="nickName !=null">,nickName</if>
+		<if test="realName !=null">,realName</if>
+		<if test="phone !=null">,phone</if>
+		<if test="role !=null">,role</if>
+		<if test="status !=null">,status</if>
+		<if test="registerTime !=null">,registerTime</if>
+		<if test="registeIP !=null">,registeIP</if>
+		<if test="tryTime !=null">,tryTime</if>
+		<if test="balance !=null">,balance</if>
+		<if test="idno !=null">,idno</if>
+		<![CDATA[
+			)values( 
+			#{loginName},#{password},#{email}
+		]]>
+		<if test="nickName !=null">,#{nickName}</if>
+		<if test="realName !=null">,#{realName}</if>
+		<if test="phone !=null">,#{phone}</if>
+		<if test="role !=null">,#{role}</if>
+		<if test="status !=null">,#{status}</if>
+		<if test="registerTime !=null">,#{registerTime}</if>
+		<if test="registeIP !=null">,#{registeIP}</if>
+		<if test="tryTime !=null">,#{tryTime}</if>
+		<if test="balance !=null">,#{balance}</if>
+		<if test="idno !=null">,#{idno}</if>
+		<![CDATA[
+			)
+		]]>
+	</insert>
+
+	<!-- 查找所有用户记录 -->
+	<select id="findAll" resultMap="userMap">
+		<include refid="querySql"></include>
+	</select>
+
+	<!-- 通过id查找用户记录 -->
+	<select id="findById" parameterType="java.lang.Integer"
+		resultMap="userMap">
+		<include refid="querySql"></include> 
+		<![CDATA[
+			where u.id=#{id}
+		]]>
+	</select>
+
+	<!-- 通过登录名查找用户记录 -->
+	<select id="findByLoginName" parameterType="java.lang.String"
+		resultMap="userMap">
+		<include refid="querySql"></include> 
+		<![CDATA[
+			where u.loginName=#{loginName}
+		]]>
+	</select>
+	<sql id="querySql">
+		select
+		u.id,
+		u.loginName,
+		u.password,
+		u.nickName,
+		u.realName,
+		u.email,
+		u.phone,
+		u.status,
+		u.role,
+		u.registerTime,
+		u.registeIP,
+		u.tryTime,u.balance,
+		u.idno
+		from user u
+	</sql>
+
+</mapper>

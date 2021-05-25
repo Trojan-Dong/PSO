@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.trojan.mapper.ChapterMapper">
+
+	<!-- 通过章节id查询章节信息 -->
+	<select id="selectById" resultType="Chapter">
+		select chapterId,chapterName
+		nId,updateTime from chapter
+		where
+		chapterId=1
+	</select>
+
+	<!-- 查询所有章节信息 -->
+	<select id="selectAll" resultType="java.util.HashMap">
+		select
+		chapterId,chapterName,updateTime,
+		nId from chapter
+	</select>
+
+	<!-- 通过章节名查询章节信息 -->
+	<select id="selectChapterByName" parameterType="java.lang.String"
+		resultType="Chapter">
+		select
+		c.chapterId,c.chapterName,c.updateTime,c.chapterUrl,
+		c.nId from chapter
+		c where
+		chapterName=#{chapterName}
+	</select>
+
+	<!-- 通过小说id查询当前小说的所有章节信息 -->
+	<select id="selectChapterByNid" parameterType="java.lang.Integer"
+		resultType="java.util.HashMap">
+		select
+		c.chapterId,c.chapterName,c.updateTime,c.chapterUrl,
+		c.nId from
+		chapter
+		c
+		where
+		c.nId=#{nId}
+	</select>
+	
+	<!-- 通过章节地址查询章节信息 -->
+	<select id="findByChapterUrl" parameterType="java.lang.String"
+		resultType="Chapter">
+		select
+		c.chapterId,c.chapterName,c.updateTime,c.chapterUrl,
+		c.nId from
+		chapter
+		c
+		where
+		c.chapterUrl=#{chapterUrl}
+	</select>
+
+	<!-- 新增章节 -->
+	<insert id="addChapter" parameterType="Chapter">
+		<![CDATA[
+			insert into chapter (chapterName,nId,chapterUrl
+		]]>
+		<if test="updateTime != null">
+			,updateTime
+		</if>
+		<![CDATA[
+		  ) 
+		  values (#{chapterName},#{nId},#{chapterUrl}
+		]]>
+		<if test="updateTime != null">
+			,#{updateTime}
+		</if>
+		<![CDATA[
+		)
+		]]>
+	</insert>
+
+	<!-- 查询小说总章节数 -->
+	<select id="selectChapterCountByNid" parameterType="java.lang.Integer"
+		resultType="java.lang.Integer">
+		select
+		count(c.chapterId)
+		from chapter
+		c where
+		c.nId=#{nId}
+	</select>
+
+	<!-- 批量插入章节信息 -->
+	<insert id="batchAddChapter" parameterType="java.util.List">
+	 <![CDATA[
+			insert ignore chapter (chapterName,nId,chapterUrl,updateTime) 
+		  values ]]>
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.chapterName},#{item.nId},#{item.chapterUrl}
+			<choose>
+				<when test="item.updateTime != null">
+					,#{item.updateTime}
+				</when>
+				<otherwise>
+					,null
+				</otherwise>
+			</choose>
+		<![CDATA[
+		)
+		]]>
+		</foreach>
+
+	</insert>
+	
+	<!-- 查询数据条数 -->
+	<select id="getChapterCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(chapterId) from chapter where chapterId=#{id}
+	</select>
+
+</mapper>

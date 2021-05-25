@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script type="text/javascript" src="js/basic.js"></script>
+<title>书架</title>
+<style type="text/css">
+#page {
+	width: 80%;
+	margin: 0px auto;
+}
+
+#search input[type="text"] {
+	float: left;
+	width: 80%;
+	height: 30px;
+	border: none;
+	padding: 0px;
+	border: 1px #cccccc solid;
+}
+
+#search button {
+	float: left;
+	width: 18%;
+	height: 32px;
+	background-color: #cccccc;
+	border: 1.5px #cccccc solid;
+}
+
+.list {
+	list-style: none;
+	float: left;
+	width: 49%;
+	margin-bottom: 15px;
+	color: #000000;
+}
+
+@media screen and (max-width: 480px) {
+	.list {
+		list-style: none;
+		float: left;
+		width: 80%;
+		margin-bottom: 15px;
+		color: #000000;
+		text-align: center;
+	}
+}
+
+.readInfo {
+	font-size: 12px;
+}
+
+.haveRead {
+	color: #FF0000
+}
+</style>
+</head>
+<body>
+	<div id="page">
+		<div id="nav"></div>
+		<div>
+			<ol>
+				<li class="list" v-for="list in bookLists"
+					v-bind:class="list.readtime<list.lastUpdateTime?'haveRead':''">
+					<p>
+						<span v-on:click="switchTo(list,1)"> {{ list.nName }} </span>
+					</p>
+					<p class="readInfo">
+						<label style="display: block">更新时间:</label> <span>{{list.lastUpdateTime|formatDate}}</span>
+					</p>
+					<p class="readInfo">
+						<span v-on:click="switchTo(list,2)"> {{list.chapterName}}</span>
+					</p>
+				</li>
+			</ol>
+		</div>
+	</div>
+	<script>
+		var app = new Vue({
+			el:'#page',
+			data : {
+				bookLists : ''
+			},
+			methods : {
+				load:function(){
+					app.isLogin(); 
+				},
+				/* 检查是否登录  */
+				isLogin:function(){
+					var vm=this;
+					//判断是否登录
+					axios.post('loginCheck').then(function(res) {
+						user=res.data;
+						 if(user==null||user==""){
+							 location.href = "./login.html";
+						 }else{
+							 //发现用户下的书架记录
+							 axios.post('findByUserId',{
+								 "id":user.id
+							 }).then(function(res) {
+								 vm.bookLists=res.data
+								}).catch(function(error) {
+									console.log(error)
+									alert(error)
+								});
+						 }
+					})
+				},
+				switchTo:function(list,targetType){
+					sessionStorage.setItem("novelName", list.nName)
+					if(targetType==1){
+						sessionStorage.setItem("targetURL", list.nURL)
+						location.href="./detail.html?novelName="+ list.nName 
+					}else{
+						sessionStorage.setItem("targetURL", list.chapterUrl)
+						sessionStorage.setItem("novelName", list.nName)
+						location.href="./novelContent.html?novelName="+ list.chapterName 
+					}
+				} 
+			},
+			filters: {
+		        formatDate(time) {
+		            var date = new Date(time);
+		            return formatDate(date, "yyyy-MM-dd hh:mm");
+		        }
+		    }
+		});
+	</script>
+
+
+</body>
+</html>

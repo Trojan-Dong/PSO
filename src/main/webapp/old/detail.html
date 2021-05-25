@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script type="text/javascript" src="js/basic.js"></script>
+<title></title>
+<style type="text/css">
+#page {
+	width: 80%;
+	margin: 0px auto;
+}
+
+.headInfo {
+	width: 90%;
+	margin: 15px auto 6rem;
+	heigth: auto;
+	clear: both;
+}
+
+.headInfo img {
+	width: 20%;
+	height: 180px;
+}
+
+.headInfo span {
+	vertical-align: top;
+	display: inline-block;
+	width: 70%;
+	margin-left: 1rem;
+	line-height: 1.5rem;
+	height: 180px;
+}
+
+@media screen and (max-width: 480px) {
+	.headInfo img {
+		width: 100%;
+		height: 100px;
+	}
+	.headInfo span {
+		width: 100%;
+		margin-left: 0;
+		line-height: 1.5rem;
+	}
+}
+
+.chapterList {
+	list-style: none;
+	float: left;
+	width: 49%;
+	margin-left: 1%;
+	margin-bottom: 15px;
+	color: #000000;
+}
+
+@media screen and (max-width: 480px) {
+	.chapterList {
+		list-style: none;
+		float: left;
+		width: 90%;
+		margin: 0px auto 15px auto;
+		color: #000000;
+	}
+	.headInfo img {
+		width: 100%;
+		height: 100px;
+	}
+	.headInfo span {
+		width: 100%;
+		margin-left: 0;
+		line-height: 1.5rem;
+	}
+}
+
+.chapterList a {
+	text-decoration: none;
+	color: #000000;
+	margin-right: 1%;
+}
+</style>
+</head>
+<body>
+	<div id="page" v-bind:style="{display:isDisplay}">
+		<div id="nav"></div>
+		<div class="headInfo">
+			<img v-bind:src="novelInfo.coverPic" /> <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{novelInfo.introduction}}</span>
+		</div>
+		<div class="listInfo">
+			<p style="text-align: center" v-on:click="goToIndex()">返回首页</p>
+			<ol>
+				<li class="chapterList" v-for="chapter in chapterList" v-on:click="switchPageto(chapter)">
+					<span>{{ chapter.chapterName }}</span>
+				</li>
+			</ol>
+		</div>
+
+	</div>
+	<script>
+		var app = new Vue({
+			data : {
+				chapterList : '',
+				novelInfo:'',
+				isDisplay:'none',
+				textAlign:'center'
+			},
+			methods : {
+				load:function()	{
+					app.getChapter()
+				},	
+				getChapter : function() {
+					var novelName = sessionStorage.getItem("novelName")||utils.getKey('chapterName');
+					var novelUrl = sessionStorage.getItem("targetUrl")||utils.getKey('chapterUrl');
+					//发送get请求
+					var vm = this
+					axios.post('getChapter', {
+						"nName" : novelName,
+						"nURL":novelUrl
+					}).then(function(res) {
+						vm.chapterList=res.data.chapterInfo;
+						vm.novelInfo=res.data.novelInfo;
+						vm.isDisplay='block';
+					}).catch(function(error) {
+						console.log(error);
+						alert(error);
+					});
+					$("title").text(novelName)
+					
+				},
+				switchPageto:function(chapter){
+					sessionStorage.setItem("targetURL", chapter.chapterUrl)
+					sessionStorage.setItem("chapterName", chapter.chapterName)
+					sessionStorage.setItem("novelName", this.novelInfo.nName)
+					sessionStorage.setItem("currentNovel",this.novelInfo)
+					location.href="./novelContent.html?novelName="+ chapter.chapterName
+				},
+				goToIndex:function(){
+					location.href = "./index.html";
+				}
+				
+			}
+
+		}).$mount("#page");
+	</script>
+
+
+</body>
+</html>

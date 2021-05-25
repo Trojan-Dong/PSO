@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.trojan.mapper.BookshelfMapper">
+	<sql id="querySql">
+		select
+			b.id,b.readtime,u.id userId, u.loginName,d.nId,d.nName,d.nURL,
+			d.lastUpdateTime,c.chapterId,c.chapterName,c.chapterUrl
+		from
+			bookshelf b
+		left join 
+			user u
+		on
+			u.id=b.user_id
+		left join
+			directory d
+		on
+			b.directory_id=d.nId
+		left join
+			chapter c
+		on
+			b.chapter_id=c.chapterId
+	</sql>
+
+    <resultMap type="Bookshelf" id="bookshelfMap">
+        <id column="id" property="id"/>
+        <result column="readtime" property="readtime"/>
+        <collection property="user" ofType="User">
+            <id column="userId" property="id"/>
+            <result column="loginName" property="loginName"/>
+        </collection>
+        <collection property="directory" ofType="Directory">
+            <id column="nId" property="nId"/>
+            <result column="nName" property="nName"/>
+            <result column="nURL" property="nURL"/>
+        </collection>
+        <collection property="chapter" ofType="Chapter">
+            <id column="chapterId" property="chapterId"/>
+            <result column="chapterName" property="chapterName"/>
+            <result column="chapterUrl" property="chapterUrl"/>
+        </collection>
+    </resultMap>
+
+    <!-- 通过id查询信息 -->
+    <select id="findById" resultMap="bookshelfMap" parameterType="java.lang.Integer">
+        <include refid="querySql"></include>
+        <![CDATA[
+			where b.id=#{id}
+		]]>
+
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="selectAll" resultType="java.util.HashMap">
+        <include refid="querySql"></include>
+    </select>
+
+    <!-- 查找用户下书架记录 -->
+    <select id="findByUserId" parameterType="java.lang.Integer"
+            resultType="java.util.HashMap">
+        <include refid="querySql"></include>
+        <![CDATA[
+			where 
+				b.user_id=#{userId}
+		]]>
+    </select>
+
+    <!-- 查找用户下某书记录是否存在 -->
+    <select id="findByUserIdAndNovelId" parameterType="java.lang.Integer"
+            resultMap="bookshelfMap">
+        <include refid="querySql"></include>
+        <![CDATA[
+			where 
+				b.user_id=#{userId} 
+			and 
+				b.directory_id=#{novelId}
+		]]>
+    </select>
+
+    <!-- 新增书架记录 -->
+    <insert id="addBook" parameterType="Bookshelf">
+        <![CDATA[
+			insert into 
+				bookshelf 
+				(user_id,directory_id
+		]]>
+        <if test="chapter.chapterId!=null">
+            ,chapter_id
+        </if>
+        <if test="readtime!=null">
+            ,readtime
+        </if>
+        <![CDATA[
+		) 
+		values
+			(#{user.id},#{directory.nId}
+		]]>
+        <if test="chapter.chapterId!=null">
+            ,#{chapter.chapterId}
+        </if>
+        <if test="readtime!=null">
+            ,#{readtime}
+        </if>
+        <![CDATA[
+			)
+		]]>
+    </insert>
+
+    <!-- 更新书架记录 -->
+    <update id="updateBookInfo" parameterType="Bookshelf">
+		update
+			bookshelf
+		set
+			chapter_Id=#{chapter.chapterId},readtime=#{readtime}
+		where
+			user_id=#{user.id}
+		and
+			directory_id =#{directory.nId}
+	</update>
+
+    <!-- 删除书架记录 -->
+    <delete id="removeBookInfo" parameterType="Bookshelf">
+		delete from
+			bookshelf
+		where
+			user_id=#{user.id}
+		and
+			directory_id =#{directory.nId}
+	</delete>
+
+
+    <select id="testSql" resultType="java.util.HashMap">
+        select
+        <trim>b.id</trim>
+        from
+        bookshelf b
+        <where>
+            b.id=
+            <trim>''</trim>
+        </where>
+    </select>
+
+
+</mapper>

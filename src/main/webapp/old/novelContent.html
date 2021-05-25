@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script type="text/javascript" src="js/basic.js"></script>
+<link >
+<title></title>
+<style type="text/css">
+#page {
+	width: 80%;
+	margin: 0px auto;
+	text-align: center;
+	font-size: 20px;
+	letter-spacing: 1px;
+}
+
+#content {
+	line-height: 40px;
+	text-align: left;
+}
+
+#footNav {
+	height: 150px;
+}
+
+#footNav span {
+	margin-left: 15%;
+	margin-bottom: 20px;
+}
+
+#footNav span:first-child {
+	margin-left: 15%;
+}
+
+@media screen and (max-width: 480px) {
+	#footNav span {
+		display: inline-block;
+		width: 40%;
+		float: left;
+		margin-left: 10%;
+	}
+	#footNav span:first-child {
+		margin-left: 10%;
+	}
+}
+</style>
+</head>
+<body>
+	<div id="page">
+		<div id="nav"></div>
+		<h1>{{chapterName}}</h1>
+		<p id="content"></p>
+		<div id="footNav" v-bind:style="{ display: isDisplay}">
+			<span v-on:click="switchPageto(preChapterUrl,false)">上一章</span> <span
+				v-on:click="switchPageto(chapterListUrl,true)">目录</span> <span
+				v-on:click="goToIndex()">首页</span> <span
+				v-on:click="switchPageto(nextChapterUrl,false)">下一章</span>
+		</div>
+	</div>
+	<script>
+		var app = new Vue({
+			data : {
+				chapterName:'',
+				chapterListUrl:'',
+				nextChapterUrl:'',
+				preChapterUrl:'',
+				isDisplay:'none'
+			},
+			methods : {
+				
+				load:function(){
+					app.getChapter()
+				},
+				getChapter : function() {
+					var chapterName = sessionStorage.getItem("chapterName")||utils.getKey('novleName');
+					var chapterUrl=sessionStorage.getItem("targetURL")||utils.getKey('chapterUrl')
+					var novelName = sessionStorage.getItem("novelName");
+					$("title").text(novelName)
+					sessionStorage.setItem("chapterName",chapterName)
+					//发送get请求
+					var vm = this
+					axios.post('getNovelContent', {
+						"chapterUrl" : chapterUrl
+					}).then(function(res) {
+						pageInfo=res.data
+						var content=$("#content").html(pageInfo.content);
+						vm.chapterName=pageInfo.chapterName;
+						vm.chapterListUrl=pageInfo.chapterListUrl;
+						vm.nextChapterUrl=pageInfo.nextChapterUrl;
+						vm.preChapterUrl=pageInfo.preChapterUrl;
+						vm.isDisplay='block';
+					}).catch(function(error) {
+						console.log(error);
+						alert(error);
+					});
+				},
+				switchPageto:function(url){
+					pageUrl="";
+
+					if(stcm.endWith(this.chapterListUrl,url)){
+						pageUrl="./detail.html?novelName="+sessionStorage.getItem("novelName");
+					}else{
+						pageUrl="./novelContent.html";
+					}
+					if(!url.indexOf('http://www.xbiquge.la')==0){
+						url='http://www.xbiquge.la'+url;
+					}
+					sessionStorage.setItem("targetURL", url)
+					location.href = pageUrl;
+					  
+				},
+				goToIndex:function(){
+					location.href = "./index.html";
+				}
+			}
+
+		}).$mount("#page");
+	</script>
+
+
+</body>
+</html>
