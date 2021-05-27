@@ -1,20 +1,21 @@
 package com.trojan.controller;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.apache.http.HttpRequest;
+import com.trojan.controller.to.FindUserByIdRequest;
+import com.trojan.controller.to.FindUserByIdResponse;
+import com.trojan.entity.User;
+import com.trojan.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.trojan.entity.User;
-import com.trojan.service.UserService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 /**
  * @author dgj
@@ -24,7 +25,7 @@ import com.trojan.service.UserService;
 @Controller
 public class UserController {
 
-    private Logger logger = LoggerFactory.getLogger(UserController.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     UserService userService;
 
@@ -35,11 +36,15 @@ public class UserController {
      */
     @RequestMapping("/findUserById")
     @ResponseBody
-    public User findUserById(Integer id) {
-        logger.debug("findUserById begin");
-        User user = userService.findById(id);
-        logger.debug("findUserById end");
-        return user;
+    public FindUserByIdResponse findUserById(@Validated @RequestBody FindUserByIdRequest request) {
+        logger.info(String.valueOf(request.id));
+        logger.info(String.valueOf(request.test));
+        FindUserByIdResponse response = new FindUserByIdResponse();
+//        logger.debug("findUserById begin");
+        User user = userService.findById(request.id);
+//        logger.debug("findUserById end");
+        response.id=user.getId();
+        return response;
     }
 
     /**
