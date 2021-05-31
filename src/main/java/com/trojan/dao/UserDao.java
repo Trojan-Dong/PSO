@@ -1,10 +1,10 @@
-package com.trojan.mapper;
+package com.trojan.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import com.trojan.entity.User;
 
 @Mapper
-public interface UserMapper {
+public interface UserDao {
 
 	public User findById(int id);
 
