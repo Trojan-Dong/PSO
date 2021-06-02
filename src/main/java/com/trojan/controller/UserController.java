@@ -3,6 +3,7 @@ package com.trojan.controller;
 import com.trojan.controller.to.FindUserByIdRequest;
 import com.trojan.controller.to.FindUserByIdResponse;
 import com.trojan.entity.User;
+import com.trojan.exception.ResponseResult;
 import com.trojan.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,18 +37,14 @@ public class UserController {
      */
     @RequestMapping("/findUserById")
     @ResponseBody
-    public FindUserByIdResponse findUserById(@Validated @RequestBody FindUserByIdRequest request) {
-        logger.info(String.valueOf(request.id));
-        logger.info(String.valueOf(request.test));
-        FindUserByIdResponse response = new FindUserByIdResponse();
-//        logger.debug("findUserById begin");
+    public ResponseResult findUserById(@Validated @RequestBody FindUserByIdRequest request) {
+        ResponseResult response = new ResponseResult();
         User user = userService.findById(request.id);
-//        logger.debug("findUserById end");
-        response.id=user.getId();
         return response;
     }
 
     /**
+     * v
      * 添加新用户
      */
     @RequestMapping("/addUser")

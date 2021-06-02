@@ -18,7 +18,9 @@ public class ResponseResult {
     public boolean success;
 
     public ResponseResult() {
-
+        this.code = 10000;
+        this.msg = "SUCCESS";
+        this.success = true;
     }
 
     public ResponseResult(Integer code, String msg) {
@@ -26,7 +28,7 @@ public class ResponseResult {
         this.msg = msg;
     }
 
-    public ResponseResult( boolean success,Integer code, String msg) {
+    public ResponseResult(boolean success, Integer code, String msg) {
         this.code = code;
         this.msg = msg;
         this.success = success;
@@ -54,5 +56,9 @@ public class ResponseResult {
 
     public void setSuccess(boolean success) {
         this.success = success;
+    }
+
+    private void defaultValue() {
+
     }
 }

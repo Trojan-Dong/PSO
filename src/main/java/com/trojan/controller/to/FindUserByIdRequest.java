@@ -22,6 +22,4 @@ public class FindUserByIdRequest {
     @NotNull(message = "id不能为空")
     public Integer id;
 
-    @NotEmpty(message = "test不能为空")
-    public String test;
 }

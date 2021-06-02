@@ -20,6 +20,5 @@ public class FindUserByIdResponse {
     @NotNull(message = "id不能为空")
     public Integer id;
 
-    @NotNull(message = "test不能为空")
-    public String test;
+
 }
