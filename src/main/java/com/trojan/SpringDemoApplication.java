@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 //@ComponentScan("com.trojan")
-@MapperScan("com.trojan.mapper")
+@MapperScan("com.trojan.dao")
 public class SpringDemoApplication {
 
     public static void main(String[] args) {
